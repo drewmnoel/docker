@@ -32,8 +32,6 @@ ENV PHP_SHA256 f2876750f3c54854a20e26a03ca229f2fbf89b8ee6176b9c0586cb9b2f0b3f9a
 # --enable-mysqlnd is included below because it's harder to compile after the fact the extensions are (since it's a plugin for several extensions, not an extension in itself)
 RUN mkdir -p /usr/src/php
 COPY libxml.patch /usr/src/php/
-RUN apt-get update && apt-get install zlib1g-dev -y
-RUN dpkg -i /usr/src/php/*.deb
 RUN buildDeps=" \
 		$PHP_EXTRA_BUILD_DEPS \
 		libcurl4-openssl-dev \
@@ -65,6 +63,7 @@ RUN buildDeps=" \
 			--with-recode \
 			--with-zlib \
 			--with-pdo-mysql=mysqlnd \
+	&& echo "EXTRA_LIBS += -lcrypto" >> Makefile \
   && make -j"$(nproc)" \
 	&& make install \
 	&& { find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; } \
